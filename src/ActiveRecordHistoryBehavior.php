@@ -72,7 +72,13 @@ class ActiveRecordHistoryBehavior extends Behavior
         switch ($event->name){
             case BaseActiveRecord::EVENT_AFTER_INSERT:
                 $type = $manager::AR_INSERT;
-                $manager->setUpdatedFields($event->changedAttributes);
+
+                $changedAttributes = $event->changedAttributes;
+                foreach ($this->ignoreFields as $ignoreField)
+                    if (isset($changedAttributes[$ignoreField]))
+                        unset($changedAttributes[$ignoreField]);
+
+                $manager->setUpdatedFields($changedAttributes);
                 break;
 
             case BaseActiveRecord::EVENT_AFTER_UPDATE:
